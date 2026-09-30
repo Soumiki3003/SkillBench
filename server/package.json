@@ -1,0 +1,19 @@
+{
+  "name": "skillbench-server",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Backend proxy for the SkillBench VS Code extension. Holds the Anthropic API key and the real skill definitions server-side; the extension never sees either.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
+    "dotenv": "^16.4.5",
+    "express": "^5.2.1"
+  }
+}
