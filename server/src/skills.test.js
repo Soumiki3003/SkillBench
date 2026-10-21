@@ -1,7 +1,7 @@
 const assert = require('node:assert');
 const path = require('node:path');
 const { test } = require('node:test');
-const { loadSkills } = require('./skills');
+const { loadSkills, applyInitialView } = require('./skills');
 
 const skillsDir = path.join(__dirname, '..', '..', '.claude', 'skills');
 
@@ -20,6 +20,22 @@ test('loadSkills parses all 8 SKILL.md files and assigns blinded labels', () => 
 		labels.add(skill.label);
 	}
 	assert.strictEqual(labels.size, 8, 'every skill should get a distinct blinded label');
+});
+
+test('applyInitialView adds the task configuration to the sycophancy skills only', () => {
+	const skills = loadSkills(skillsDir);
+	const applied = applyInitialView(skills, 'Something is off.');
+
+	assert.deepStrictEqual(applied.map((s) => s.label), ['Condition E', 'Condition F', 'Condition G', 'Condition H']);
+	for (const skill of skills) {
+		const hasConfig = skill.systemPrompt.endsWith('\n\nTask configuration:\nINITIAL_VIEW: Something is off.');
+		assert.strictEqual(hasConfig, applied.includes(skill), `skill ${skill.id}`);
+	}
+});
+
+test('applyInitialView throws when INITIAL_VIEW is missing or blank', () => {
+	assert.throws(() => applyInitialView(loadSkills(skillsDir), undefined), /INITIAL_VIEW is not set/);
+	assert.throws(() => applyInitialView(loadSkills(skillsDir), '   '), /INITIAL_VIEW is not set/);
 });
 
 test('loadSkills throws when the directory does not exist', () => {

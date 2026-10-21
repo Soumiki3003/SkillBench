@@ -26,8 +26,9 @@ Small backend that proxies the SkillBench VS Code extension to Anthropic's API. 
    cd server
    npm install
    cp .env.example .env
-   nano .env   # fill in ANTHROPIC_API_KEY and STUDY_CODE
+   nano .env   # fill in ANTHROPIC_API_KEY, STUDY_CODE and INITIAL_VIEW
    ```
+   `INITIAL_VIEW` is the shared first-turn assessment appended (as `Task configuration:`) to every skill that mentions it — currently Conditions E–H. The server refuses to start if it's missing. Change it whenever the task changes, then restart.
 
 4. **Run it under a process manager** (so it restarts on crash/reboot):
    ```

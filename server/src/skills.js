@@ -67,4 +67,22 @@ function loadSkills(skillsDir) {
 	return skills;
 }
 
-module.exports = { loadSkills };
+/**
+ * Appends the shared `INITIAL_VIEW` task configuration to every skill whose
+ * prompt refers to it, so all of those conditions start from the identical
+ * sentence. Throws if any skill needs it and none was given, so a session
+ * can never run those conditions without it.
+ */
+function applyInitialView(skills, initialView) {
+	const needsIt = skills.filter((skill) => skill.systemPrompt.includes('INITIAL_VIEW'));
+	const value = (initialView || '').trim();
+	if (needsIt.length > 0 && !value) {
+		throw new Error(`INITIAL_VIEW is not set, but these skills require it: ${needsIt.map((s) => s.id).join(', ')}`);
+	}
+	for (const skill of needsIt) {
+		skill.systemPrompt += `\n\nTask configuration:\nINITIAL_VIEW: ${value}`;
+	}
+	return needsIt;
+}
+
+module.exports = { loadSkills, applyInitialView };

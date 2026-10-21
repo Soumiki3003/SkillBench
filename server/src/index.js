@@ -3,7 +3,7 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
-const { loadSkills } = require('./skills');
+const { loadSkills, applyInitialView } = require('./skills');
 
 const PORT = process.env.PORT || 3000;
 const STUDY_CODE = process.env.STUDY_CODE;
@@ -27,9 +27,18 @@ if (skills.length === 0) {
 	process.exit(1);
 }
 
+let initialViewSkills;
+try {
+	initialViewSkills = applyInitialView(skills, process.env.INITIAL_VIEW);
+} catch (err) {
+	console.error(`${err.message}. Refusing to start: those conditions would run without their initial view.`);
+	process.exit(1);
+}
+
 console.log('Loaded skills (this mapping is never sent to clients):');
 for (const skill of skills) {
-	console.log(`  ${skill.label} -> ${skill.id} (${skill.name})`);
+	const note = initialViewSkills.includes(skill) ? ' [INITIAL_VIEW]' : '';
+	console.log(`  ${skill.label} -> ${skill.id} (${skill.name})${note}`);
 }
 
 const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
